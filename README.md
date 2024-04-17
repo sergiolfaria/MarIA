@@ -1,4 +1,3 @@
-```markdown
 # Projeto de Emulação com PyBoy
 
 Este projeto utiliza o emulador PyBoy para o jogo "Super Mario Land" de GameBoy. O foco é desenvolver e testar algoritmos genéticos que interajam com o jogo, implementando funções de seleção, recombinação e mutação para otimizar a performance in-game.
@@ -46,8 +45,3 @@ python principal.py
 - [ ] Desenvolver função de mutação.
 - [ ] Verificar outros TODOs no código para otimizações adicionais.
 - [ ] Adicionar funcionalidades e operações necessárias para melhorar seu algoritmo.
-
-
-```
-
-Este `README.md` dá uma visão geral de como configurar e executar o projeto, além de oferecer links para download do jogo e do emulador alternativo. Adapte o conteúdo conforme necessário para refletir as particularidades do seu projeto e os padrões de contribuição que você deseja estabelecer.
