@@ -33,8 +33,9 @@ class Ambiente:
             return None, 0, 0, "Fim de Jogo"
         # TODO: Pode mudar as ações, ainda pode usar down e up
         acoes = {
-            0: WindowEvent.PRESS_ARROW_RIGHT,
-            1: WindowEvent.PRESS_BUTTON_A
+            0: WindowEvent.PRESS_ARROW_LEFT,
+            1: WindowEvent.PRESS_ARROW_RIGHT,
+            2: WindowEvent.PRESS_BUTTON_A
         }
         acoes_liberacao = {
             0: WindowEvent.RELEASE_ARROW_LEFT,
@@ -64,10 +65,14 @@ class Ambiente:
 class Individuo:
     # TODO: Pode mudar a quantidade de ações e a duração
     def __init__(self):
-        self.acoes = [(random.randint(0, 2), random.randint(1, 10)) for _ in range(6000)]
+        self.acoes = [(self.acao_ponderada(), random.randint(1, 10)) for _ in range(5000)]
         self.fitness = 0
 
-    # TODO: Fique à vontade para mudar a função de avaliação e adicionar/remover parâmetros
+    def acao_ponderada(self):
+        acoes_ponderadas = [0, 1, 1, 1, 2,2]  
+        return random.choice(acoes_ponderadas)
+
+    # TODO: 
     def avaliar(self, ambiente):
         estado = ambiente.reset()
         fitness_total = 0
@@ -97,28 +102,26 @@ def avaliar_fitness(individuo, ambiente):
 def iniciar_individuos(populacao):
     return [Individuo() for _ in range(populacao)]
 
-def selecao(individuos, tamanho_torneio=3):
-    selecionadas = []
-    while len(selecionadas) < len(individuos):
-        torneio = random.sample(individuos, tamanho_torneio)
-        selecionado = max(torneio, key=lambda ind: ind.fitness)
-        selecionadas.append(selecionado)
-    return selecionadas
+def selecao(individuos):
+    selecionados = []
+    for _ in range(len(individuos)):
+        competidores = random.sample(individuos, 5) 
+        vencedor = max(competidores, key=lambda individuo: individuo.fitness)  
+        selecionados.append(vencedor)
+    return selecionados
 
 def cruzamento(pai1, pai2):
-    ponto_corte = random.randint(0, len(pai1.acoes))
-    filho1_acoes = pai1.acoes[:ponto_corte] + pai2.acoes[ponto_corte:]
-    filho2_acoes = pai2.acoes[:ponto_corte] + pai1.acoes[ponto_corte:]
+    ponto_cruzamento = random.randint(1, len(pai1.acoes) - 1) 
     filho1 = Individuo()
-    filho1.acoes = filho1_acoes
     filho2 = Individuo()
-    filho2.acoes = filho2_acoes
+    filho1.acoes = pai1.acoes[:ponto_cruzamento] + pai2.acoes[ponto_cruzamento:]
+    filho2.acoes = pai2.acoes[:ponto_cruzamento] + pai1.acoes[ponto_cruzamento:]
     return filho1, filho2
 
 def mutacao(individuo, taxa_mutacao=0.1):
     for i in range(len(individuo.acoes)):
-        if random.random() < taxa_mutacao:
-            individuo.acoes[i] = (random.randint(0, 2), random.randint(1, 10))
+        if random.random() < taxa_mutacao:  
+            individuo.acoes[i] = (random.randint(0, 2), random.randint(1, 10))  
 
 
 def imprimir_acoes_individuo(individuo):
