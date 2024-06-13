@@ -17,8 +17,7 @@ class Ambiente:
 
     def calcular_fitness(self):
         # TODO: Pode mudar o cálculo do fitness
-        return self.mario.score + 2 * self.mario.level_progress + self.mario.time_left
-
+        return self.mario.score + 5 * self.mario.level_progress + self.mario.time_left
     def fim_de_jogo(self):
         return self.mario.lives_left == 1 or self.mario.score < 0
 
@@ -63,16 +62,22 @@ class Ambiente:
         self.pyboy.stop()
 
 class Individuo:
-    # TODO: Pode mudar a quantidade de ações e a duração
     def __init__(self):
-        self.acoes = [(self.acao_ponderada(), random.randint(1, 10)) for _ in range(5000)]
+        self.acoes = [(acao := self.acao_ponderada(), self.duracao_ponderada() if acao == 2 else random.randint(1, 15)) for _ in range(5000)]
         self.fitness = 0
 
-    def acao_ponderada(self):
-        acoes_ponderadas = [0, 1, 1, 1, 2,2]  
-        return random.choice(acoes_ponderadas)
 
-    # TODO: 
+    def acao_ponderada(self):
+        acoes_ponderadas = [0, 1, 2]
+        pesos_acoes = [3, 5, 2] 
+        return random.choices(acoes_ponderadas, weights=pesos_acoes, k=1)[0]
+
+    def duracao_ponderada(self):
+        duracoes_ponderadas = [6, 7, 8, 9, 10, 12, 20, 25]
+        pesos_duracoes = [4, 1, 1, 1, 4, 4, 5, 5] 
+        return random.choices(duracoes_ponderadas, weights=pesos_duracoes, k=1)[0]
+
+    
     def avaliar(self, ambiente):
         estado = ambiente.reset()
         fitness_total = 0
