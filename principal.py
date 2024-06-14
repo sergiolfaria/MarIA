@@ -16,8 +16,10 @@ class Ambiente:
         self.mario.start_game()
 
     def calcular_fitness(self):
-        # TODO: Pode mudar o cálculo do fitness
-        return self.mario.score + 5 * self.mario.level_progress + self.mario.time_left
+        # Aumentar os pesos dos componentes do fitness
+        return self.mario.score + 10 * self.mario.level_progress + 2 * self.mario.time_left
+
+    
     def fim_de_jogo(self):
         return self.mario.lives_left == 1 or self.mario.score < 0
 
@@ -63,7 +65,7 @@ class Ambiente:
 
 class Individuo:
     def __init__(self):
-        self.acoes = [(acao := self.acao_ponderada(), self.duracao_ponderada() if acao == 2 else random.randint(1, 15)) for _ in range(5000)]
+        self.acoes = [(acao := self.acao_ponderada(), self.duracao_ponderada() if acao == 2 else random.randint(1, 10)) for _ in range(5000)]
         self.fitness = 0
 
 
@@ -73,8 +75,8 @@ class Individuo:
         return random.choices(acoes_ponderadas, weights=pesos_acoes, k=1)[0]
 
     def duracao_ponderada(self):
-        duracoes_ponderadas = [6, 7, 8, 9, 10, 12, 20, 25]
-        pesos_duracoes = [4, 1, 1, 1, 4, 4, 5, 5] 
+        duracoes_ponderadas = [6, 7, 8, 9, 10, 12, 20, 25,30]
+        pesos_duracoes = [4, 1, 1, 1, 4, 4, 5, 5,9] 
         return random.choices(duracoes_ponderadas, weights=pesos_duracoes, k=1)[0]
 
     
@@ -107,26 +109,29 @@ def avaliar_fitness(individuo, ambiente):
 def iniciar_individuos(populacao):
     return [Individuo() for _ in range(populacao)]
 
-def selecao(individuos):
+def selecao(individuos, k=5, prob=0.75):
     selecionados = []
     for _ in range(len(individuos)):
-        competidores = random.sample(individuos, 5) 
-        vencedor = max(competidores, key=lambda individuo: individuo.fitness)  
+        competidores = random.choices(individuos, k=k, weights=[individuo.fitness for individuo in individuos])
+        vencedor = max(competidores, key=lambda individuo: individuo.fitness) if random.random() < prob else random.choice(competidores)
         selecionados.append(vencedor)
     return selecionados
 
 def cruzamento(pai1, pai2):
-    ponto_cruzamento = random.randint(1, len(pai1.acoes) - 1) 
+    ponto_cruzamento1 = random.randint(1, len(pai1.acoes) - 1)
+    ponto_cruzamento2 = random.randint(1, len(pai1.acoes) - 1)
+    if ponto_cruzamento1 > ponto_cruzamento2:
+        ponto_cruzamento1, ponto_cruzamento2 = ponto_cruzamento2, ponto_cruzamento1
     filho1 = Individuo()
     filho2 = Individuo()
-    filho1.acoes = pai1.acoes[:ponto_cruzamento] + pai2.acoes[ponto_cruzamento:]
-    filho2.acoes = pai2.acoes[:ponto_cruzamento] + pai1.acoes[ponto_cruzamento:]
+    filho1.acoes = pai1.acoes[:ponto_cruzamento1] + pai2.acoes[ponto_cruzamento1:ponto_cruzamento2] + pai1.acoes[ponto_cruzamento2:]
+    filho2.acoes = pai2.acoes[:ponto_cruzamento1] + pai1.acoes[ponto_cruzamento1:ponto_cruzamento2] + pai2.acoes[ponto_cruzamento2:]
     return filho1, filho2
 
-def mutacao(individuo, taxa_mutacao=0.1):
+def mutacao(individuo, taxa_mutacao=0.5):
     for i in range(len(individuo.acoes)):
         if random.random() < taxa_mutacao:  
-            individuo.acoes[i] = (random.randint(0, 2), random.randint(1, 10))  
+            individuo.acoes[i] = (random.randint(0, 2), random.randint(1, 10))
 
 
 def imprimir_acoes_individuo(individuo):
